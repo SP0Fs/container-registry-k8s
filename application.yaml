@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: container-registry
+  namespace: argo-cd
+spec:
+  project: spof-cluster
+  sources:
+    - chart: docker-registry-ui
+      repoURL: https://helm.joxit.dev
+      targetRevision: 1.0.1
+      helm:
+        releaseName: docker-registry-ui
+        valueFiles:
+          - $values/values.yaml
+    - repoURL: "https://github.com/SP0Fs/container-registry-k8s.git"
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: registry
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
